@@ -1,0 +1,7 @@
+{
+  "name": "my-fab-gallery",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
