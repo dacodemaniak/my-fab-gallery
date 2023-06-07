@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { PhotoService } from '../core/services/photo/photo.service';
 import { PhotoType } from '../core/types/photo-type';
 
@@ -7,7 +7,7 @@ import { PhotoType } from '../core/types/photo-type';
   templateUrl: 'tab2.page.html',
   styleUrls: ['tab2.page.scss']
 })
-export class Tab2Page {
+export class Tab2Page implements OnInit {
 
 
 
@@ -15,6 +15,10 @@ export class Tab2Page {
     public photoService: PhotoService
   ) {}
 
+  async ngOnInit(): Promise<void> {
+      await this.photoService.loadSaved()
+  }
+  
   /**
    * Take photo from the FAB Button
    * @see PhotoService

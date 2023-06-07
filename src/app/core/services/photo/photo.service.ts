@@ -4,6 +4,9 @@ import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera
 import { PhotoType } from '../../types/photo-type';
 import { Base64Helper } from './base64-helper';
 import { Directory, Filesystem } from '@capacitor/filesystem';
+
+import { environment } from './../../../../environments/environment';
+import { Preferences } from '@capacitor/preferences';
 @Injectable({
   providedIn: 'root'
 })
@@ -14,7 +17,13 @@ export class PhotoService {
    * @var Array<PhotoType>
    */
   private _photos: PhotoType[] = []
-    
+  
+  /**
+   * @var {string}
+   * @see environment
+   */
+  private readonly _PHOTO_STORAGE = environment.photoStorage
+
   constructor() { }
 
   public async addPhotoToGallery() {
@@ -30,12 +39,36 @@ export class PhotoService {
     // Store pic in the photo array
     // pic will be stored at the beginning of the array
     this._photos.unshift(savedCapture)
+
+    // Use Preferences Capacitor to store datas
+    // Default fallback to IndexedDB storage
+    Preferences.set({
+      key: this._PHOTO_STORAGE,
+      value: JSON.stringify(this.photos)
+    })
   }
 
   public get photos(): Array<PhotoType> {
     return this._photos
   }
 
+  public async loadSaved() {
+    const { value } = await Preferences.get({key: this._PHOTO_STORAGE})
+
+    this._photos = (value ? JSON.parse(value) : []) as PhotoType[]
+
+    // Retreive photos
+    // Use reference of objects so no need to replace photo in array
+    for (let photo of this._photos) {
+      const readFile = await Filesystem.readFile({
+        path: photo.filePath,
+        directory: Directory.Data
+      })
+
+      // Convert to inline base64
+      photo.webviewPath = `data:image/jpeg;base64,${readFile.data}`
+    }
+  }
   /**
    * Convert resource to file and save it to filesystem (web process)
    * 
