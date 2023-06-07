@@ -38,7 +38,7 @@ export class Tab2Page implements OnInit {
           role: 'destructive',
           icon: 'trash',
           handler: () => {
-            // My logic here...
+            this.photoService.deletePhoto(photo, index)
           }
         },
         {

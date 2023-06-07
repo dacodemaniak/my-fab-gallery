@@ -87,6 +87,26 @@ export class PhotoService {
       }
     }
   }
+
+  public async deletePhoto(photo: PhotoType, position: number) {
+    // Splice the array
+    this._photos.splice(position, 1)
+
+    // Overwrite the stored array
+    Preferences.set({
+      key: this._PHOTO_STORAGE,
+      value: JSON.stringify(this._photos)
+    })
+
+    // Remove the physical image file
+    const filename = photo.filePath.substring(photo.filePath.lastIndexOf('/') + 1)
+
+    await Filesystem.deleteFile({
+      path: filename,
+      directory: Directory.Data
+    })
+  }
+
   /**
    * Convert resource to file and save it to filesystem (web process)
    * 
