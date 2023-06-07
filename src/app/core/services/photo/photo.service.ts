@@ -7,6 +7,9 @@ import { Directory, Filesystem } from '@capacitor/filesystem';
 
 import { environment } from './../../../../environments/environment';
 import { Preferences } from '@capacitor/preferences';
+
+import { Platform } from '@ionic/angular';
+import { Capacitor } from '@capacitor/core';
 @Injectable({
   providedIn: 'root'
 })
@@ -24,7 +27,20 @@ export class PhotoService {
    */
   private readonly _PHOTO_STORAGE = environment.photoStorage
 
-  constructor() { }
+  /**
+   * @var {Platform} platform
+   * Built-in Token to get platform device info
+   */
+  private _platform: Platform
+
+  /**
+   * Inject Platform token
+   * 
+   * @param platform 
+   */
+  constructor(platform: Platform) {
+    this._platform = platform
+  }
 
   public async addPhotoToGallery() {
     const capture = await Camera.getPhoto({
@@ -57,16 +73,18 @@ export class PhotoService {
 
     this._photos = (value ? JSON.parse(value) : []) as PhotoType[]
 
-    // Retreive photos
+    // Retreive photos from filesystem if not hybrid app (says running on web)
     // Use reference of objects so no need to replace photo in array
-    for (let photo of this._photos) {
-      const readFile = await Filesystem.readFile({
-        path: photo.filePath,
-        directory: Directory.Data
-      })
+    if (!this._platform.is('hybrid')) {
+      for (let photo of this._photos) {
+        const readFile = await Filesystem.readFile({
+          path: photo.filePath,
+          directory: Directory.Data
+        })
 
-      // Convert to inline base64
-      photo.webviewPath = `data:image/jpeg;base64,${readFile.data}`
+        // Convert to inline base64
+        photo.webviewPath = `data:image/jpeg;base64,${readFile.data}`
+      }
     }
   }
   /**
@@ -76,7 +94,7 @@ export class PhotoService {
    * @returns Promise
    */
   private async _savePicture(photo: Photo) {
-    const base64Data = await Base64Helper.readAsBase64(photo)
+    const base64Data = await Base64Helper.readAsBase64(photo, this._platform)
 
     // Create a file name
     const fileName = 'gallery_' + new Date().getTime() + '.jpeg'
@@ -89,6 +107,15 @@ export class PhotoService {
     })
 
     // Returns the saved file infos
+    // According to platform, even from filesystem
+    // or using Capacitor
+    if (this._platform.is('hybrid')) {
+      return {
+        filePath: savedFile.uri,
+        webviewPath: Capacitor.convertFileSrc(savedFile.uri)
+      }
+    }
+
     return {
       filePath: fileName,
       webviewPath: photo.webPath
