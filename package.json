@@ -1,8 +1,8 @@
 {
   "name": "my-fab-gallery",
-  "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "version": "1.0.0",
+  "author": "DaCoDeMaNiaK",
+  "homepage": "https://github.com/dacodemaniak/my-fab-gallery",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -30,6 +30,7 @@
     "@capacitor/ios": "5.0.4",
     "@capacitor/keyboard": "5.0.2",
     "@capacitor/preferences": "^5.0.2",
+    "@capacitor/splash-screen": "^5.0.2",
     "@capacitor/status-bar": "5.0.2",
     "@ionic/angular": "^7.0.0",
     "@ionic/pwa-elements": "^3.1.1",
@@ -70,5 +71,5 @@
     "ts-node": "^8.3.0",
     "typescript": "~5.0.2"
   },
-  "description": "An Ionic project"
+  "description": "Simple photo gallery with some basic features"
 }
